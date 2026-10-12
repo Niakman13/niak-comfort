@@ -1,6 +1,6 @@
 import {html,nothing} from 'lit';
 import type {Config,View,Module} from '../types';
-import {numeric,number,summary,needs,levelLabels,heatingLabels,sourceLabels} from '../view';
+import {numeric,number,summary,needs,levelLabels,heatingLabels,sourceLabels,coverageText,readingStatus} from '../view';
 import {icon} from '../ui/icons';
 export interface Controls {why:boolean;sources:boolean;toggleWhy:()=>void;toggleSources:()=>void;uid:string}
 export const moduleLabels:Record<Module,string>={windows:'Fenêtres',air:'Qualité de l’air',temperature:'Température',humidity:'Humidité',shutters:'Volets et lumière',coordination:'Lien chauffage'};
@@ -26,7 +26,7 @@ export function moduleRow(id:Module,v:View) {
     label=w.total?`${w.opened} ouverte${w.opened>1?'s':''} / ${w.total}`:'Non mesuré';
     body=html`<p>${w.label}. ${w.total?'Le constat repose sur les contacts de cette pièce.':'Sans contact, aucune fermeture ni geste effectué n’est présumé.'}</p>`;
   }else if(id==='air'){
-    label=numeric(o.co2)===null?'CO₂ non disponible':'CO₂ mesuré';
+    label=numeric(o.co2)===null?`CO₂ · ${readingStatus(o.co2).toLowerCase()}`:'CO₂ mesuré';
     body=html`<div class="air-values"><span><strong>${number(numeric(o.co2))}</strong>ppm de CO₂</span><span><strong>${number(numeric(o.indoor_humidity))}</strong>% d’humidité</span></div><p>${a.needs.includes('air')?'Le besoin de renouvellement d’air reste présent, même si une contrainte empêche l’ouverture.':'Aucun besoin de renouvellement par CO₂ n’est établi avec les mesures disponibles.'}</p><p>Particules et COV : pas de diagnostic dans cette version.</p>`;
   }else if(id==='temperature'){
     label=`${number(numeric(o.indoor_temperature))} °C`;
@@ -46,14 +46,13 @@ export function why(v:View,c:Controls) {
   return html`<section class="explanation" id=${'why-'+c.uid} ?hidden=${!c.why}><h3>Pourquoi ce conseil ?</h3>
     <div class="reason-row"><strong>Les besoins</strong><p>${v.assessment.needs.length?v.assessment.needs.map(n=>needs[n]??n).join(' · '):'Aucun besoin prioritaire parmi les mesures connues. Les polluants non mesurés restent inconnus.'}</p></div>
     <div class="reason-row"><strong>Les contraintes</strong><p>${v.assessment.constraints.map(n=>n==='rain'?'Pluie sur les ouvrants':n==='pollution'?'Air extérieur défavorable':n).join(' · ')||'Aucune contrainte confirmée ; cela ne certifie pas les sources absentes.'}</p></div>
-    <div class="reason-row"><strong>Le bilan</strong><p>${v.assessment.partial?'Certaines informations manquent ou sont périmées. Les besoins confirmés restent visibles.':'Les sources configurées sont disponibles. Le bilan ne couvre pas les équipements et polluants non mesurés.'}</p></div>
+    <div class="reason-row"><strong>Le bilan</strong><p>${coverageText(v)}. Les besoins confirmés restent visibles ; les informations non mesurées restent inconnues.</p></div>
   </section>`;
 }
 export function sources(v:View,c:Controls) {
-  const labels={valid:'Disponible',unknown:'Inconnu',stale:'Périmé',estimated:'Estimation'};
   return html`<section class="sources" id=${'sources-'+c.uid} ?hidden=${!c.sources}><h3>Les données derrière le conseil</h3><dl>
-    ${Object.entries(v.observations).map(([k,r])=>html`<dt>${sourceLabels[k]??(k.startsWith('window:')?'Contact d’ouvrant':k)} · ${labels[r.quality]}</dt><dd>${r.source??'Source non configurée'}${r.received_at?` · reçu le ${new Date(r.received_at).toLocaleString('fr-FR')}`:''}${r.quality!=='valid'?' · exclu des mesures actuelles':''}</dd>`)}
-    ${v.assessment.missing.filter(k=>!v.observations[k]).map(k=>html`<dt>${sourceLabels[k]??k}</dt><dd>Source non configurée · bilan partiel</dd>`)}
+    ${Object.entries(v.observations).map(([k,r])=>html`<dt>${sourceLabels[k]??(k.startsWith('window:')?'Contact d’ouvrant':k)} · ${readingStatus(r)}</dt><dd>${r.source??'Source non configurée'}${r.received_at?` · reçu le ${new Date(r.received_at).toLocaleString('fr-FR')}`:''}${r.quality!=='valid'?' · exclu des mesures actuelles':''}</dd>`)}
+    ${Object.keys(sourceLabels).filter(k=>!v.observations[k]).map(k=>html`<dt>${sourceLabels[k]??k}</dt><dd>Non configuré</dd>`)}
   </dl><p class="truth">La publication d’un conseil ne rajeunit pas ses sources. Les heures indiquent la réception par Home Assistant, pas forcément l’instant physique de mesure.</p></section>`;
 }
 export function hero(v:View,config:Config,c:Controls) {
@@ -70,5 +69,5 @@ export function details(v:View,config:Config,c:Controls,full:boolean) {
     ${modules.length?modules.map(id=>moduleRow(id,v)):html`<p class="empty-rubrics">Rubriques masquées. Les observations et le conseil restent disponibles.</p>`}`;
 }
 export function quality(v:View,c:Controls) {
-  return html`<div class="quality-foot">${icon('source')}<span>${v.assessment.partial?'Bilan partiel · sources à vérifier':'Sources configurées disponibles'}</span><button @click=${c.toggleSources} aria-expanded=${c.sources} aria-controls=${'sources-'+c.uid}>Sources</button></div>${sources(v,c)}`;
+  return html`<div class="quality-foot">${icon('source')}<span>${coverageText(v)}</span><button @click=${c.toggleSources} aria-expanded=${c.sources} aria-controls=${'sources-'+c.uid}>Sources</button></div>${sources(v,c)}`;
 }

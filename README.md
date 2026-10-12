@@ -11,7 +11,7 @@
 
 Carte de confort par pièce pour Home Assistant, inspirée de Niak Weather. Elle affiche les conseils calculés par [l’intégration Niak Comfort](https://github.com/Niakman13/niak-comfort-integration), avec leurs besoins, contraintes et sources.
 
-**Version 0.2.0 — alpha de test.** Aucun équipement n’est commandé. Installation complète et comportement avec vos propres capteurs restent à vérifier. Home Assistant 2026.10.0 minimum pour cette première alpha.
+**Version 0.3.0-beta.2 — bêta de test.** Aucun équipement n’est commandé. Installation complète et comportement avec vos propres capteurs restent à vérifier. Home Assistant 2026.10.0 minimum pour cette première alpha.
 
 ![Aperçu de la carte — données fictives](docs/images/preview.png)
 
@@ -32,7 +32,7 @@ Prévisions, volets, PM2.5/COV et coordination chauffage ne sont pas raccordés.
 
 [![Ouvrir Niak Comfort dans HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Niakman13&repository=niak-comfort&category=plugin)
 
-Installation manuelle : télécharger `niak-comfort-card.js` depuis [la release](https://github.com/Niakman13/niak-comfort/releases), le copier dans `config/www/`, puis ajouter `/local/niak-comfort-card.js?v=0.2.0` comme module JavaScript.
+Installation manuelle : télécharger `niak-comfort-card.js` depuis [la release](https://github.com/Niakman13/niak-comfort/releases), le copier dans `config/www/`, puis ajouter `/local/niak-comfort-card.js?v=0.3.0-beta.2` comme module JavaScript.
 
 ```yaml
 type: custom:niak-comfort-card

@@ -21,7 +21,7 @@ export const numeric = (r:Reading|undefined):number|null => r?.quality==='valid'
 export const number = (v:number|null) => v===null?'—':new Intl.NumberFormat('fr-FR',{maximumFractionDigits:1}).format(v);
 export const levelLabels = {calm:'Tout va bien',benefit:'Potentiel détecté',action:'Geste conseillé',urgent:'Attention nécessaire',neutral:'Information incomplète'};
 export const needs:Record<string,string> = {air:'Renouveler l’air',cool:'Rafraîchir',heat:'Préserver la chaleur',dry:'Réduire l’humidité'};
-export const heatingLabels:Record<string,string> = {heating:'Chauffe en cours',idle:'Au repos',off:'Arrêté',cooling:'Rafraîchit',unknown:'Action inconnue'};
+export const heatingLabels:Record<string,string> = {heating:'Chauffe en cours',idle:'Au repos',off:'Arrêté',cooling:'Rafraîchit',unknown:'Action indisponible',not_configured:'Non configuré'};
 export const sourceLabels:Record<string,string> = {indoor_temperature:'Température intérieure',outdoor_temperature:'Température extérieure',indoor_humidity:'Humidité intérieure',outdoor_humidity:'Humidité extérieure',co2:'CO₂',rain:'Pluie sur les ouvrants',pollution:'Contrainte d’air extérieur',heating:'Chauffage observé'};
 export const reasons:Record<string,[string,string]> = {
   within_comfort:['Vous êtes bien','Les mesures disponibles sont dans vos repères de confort. Cela ne renseigne pas les polluants non mesurés.'],
@@ -40,7 +40,23 @@ export const reasons:Record<string,[string,string]> = {
 };
 export function summary(v:View):[string,string] {
   const a=v.assessment;
+  if(a.reason==='incomplete_data'&&numeric(v.observations.indoor_temperature)!==null&&!a.missing.some(k=>!!v.observations[k])) return ['Les mesures connues sont dans vos repères','Les conditions extérieures non configurées restent à vérifier avant d’ouvrir. Ce bilan porte sur les mesures disponibles.'];
   if(a.action==='ok'&&a.needs.includes('air')) return ['L’aération est en cours','Le CO₂ reste à surveiller : une ouverture observée ne signifie pas que le besoin d’air est résolu.'];
   if(a.reason==='opening_blocked'&&a.action==='fermer') return ['Fermez les ouvrants concernés',reasons.opening_blocked[1]];
   return reasons[a.reason]??['Conseil à vérifier','Cette raison n’est pas reconnue par la carte. Mettez à jour la carte et l’intégration ensemble.'];
+}
+
+export function coverageText(v:View):string {
+  const failed=v.assessment.missing.filter(k=>!!v.observations[k]);
+  const absent=v.assessment.missing.filter(k=>!v.observations[k]);
+  if(failed.length) return 'Mesures à vérifier : '+failed.map(k=>sourceLabels[k]??(k.startsWith('window:')?'Contact de fenêtre':k)).join(' · ');
+  if(absent.length) return 'Bilan limité : '+absent.map(k=>sourceLabels[k]??k).join(' · ')+' non configuré';
+  return 'Sources configurées disponibles';
+}
+export function readingStatus(r:Reading|undefined):string {
+  if(!r) return 'Non configuré';
+  if(r.quality==='stale') return 'Mesure trop ancienne';
+  if(r.quality==='estimated') return 'Estimation';
+  if(r.quality==='valid') return 'Disponible';
+  return r.detail==='incompatible_unit'?'Unité incompatible':r.detail==='out_of_range'?'Valeur hors plage':r.detail==='unknown_action'?'Action non fournie par le chauffage':'Temporairement indisponible';
 }
