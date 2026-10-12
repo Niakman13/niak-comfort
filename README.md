@@ -4,6 +4,8 @@ Carte de confort par pièce pour Home Assistant, inspirée de Niak Weather. Elle
 
 **Version 0.2.0 — alpha de test.** Aucun équipement n’est commandé. Installation complète et comportement avec vos propres capteurs restent à vérifier. Home Assistant 2026.10.0 minimum pour cette première alpha.
 
+![Aperçu de la carte — données fictives](docs/images/preview.png)
+
 ## Fonctions
 
 Quatre formats : mini, tuile, dépliée et complète. Comparaison dedans/dehors, fenêtres, CO₂, température, humidité et action réellement observée du chauffage. Pourquoi/sources, fenêtre complète accessible par bouton, appui long ou Shift+Entrée. Thèmes clair/sombre/HA, rubriques masquables et réordonnables, animations et verre désactivables.
