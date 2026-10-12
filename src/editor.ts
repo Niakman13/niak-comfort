@@ -50,6 +50,6 @@ export class ComfortEditor extends LitElement {
       <h3>Affichage et performance</h3><label>Thème<select .value=${c.theme??'auto'} @change=${(e:Event)=>this.change({theme:(e.target as HTMLSelectElement).value as Config['theme']})}><option value="auto">Suivre Home Assistant</option><option value="light">Clair</option><option value="dark">Sombre</option></select></label>
       <label class="check"><input type="checkbox" .checked=${c.animations!==false} @change=${(e:Event)=>this.change({animations:(e.target as HTMLInputElement).checked})}>Animations</label>
       <label class="check"><input type="checkbox" .checked=${c.glass_effect!==false} @change=${(e:Event)=>this.change({glass_effect:(e.target as HTMLInputElement).checked})}>Effet de verre</label><p>Désactiver ces effets allège l’affichage. La réduction des animations de votre appareil est toujours respectée.</p>
-      <p>Les capteurs, seuils et repères de confort se règlent dans l’intégration Niak Comfort.</p>`;
+      <p>Les capteurs et préférences se règlent dans Niak Confort, accessible depuis la barre latérale de Home Assistant.</p>`;
   }
 }

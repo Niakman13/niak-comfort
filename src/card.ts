@@ -11,7 +11,7 @@ import './editor';
 let instances=0;
 const problems:Record<string,[string,string]>={
   choose_entry:['Choisissez une pièce','Plusieurs pièces Niak Comfort sont configurées. Choisissez celle de cette carte dans ses réglages.'],
-  not_configured:['Ajoutez Niak Comfort','Configurez une pièce dans Paramètres → Appareils et services après installation de l’intégration.'],
+  not_configured:['Ajoutez Niak Comfort','Ouvrez Niak Confort dans la barre latérale pour configurer votre première pièce après installation de l’intégration.'],
   not_found:['Pièce introuvable','Cette pièce n’est pas chargée. Vérifiez l’intégration ou choisissez une autre pièce dans les réglages de la carte.'],
   unknown_command:['Installez la version compatible de l’intégration','La carte nécessite l’intégration Niak Comfort avec la vue v1. Installez ou mettez à jour les deux fichiers ensemble, puis redémarrez Home Assistant.'],
   version:['Vue incompatible','La réponse reçue ne correspond pas à cette carte. Mettez à jour la carte et l’intégration ensemble.'],
@@ -70,6 +70,10 @@ export class NiakComfortCard extends LitElement {
   private move(e:PointerEvent){if(this.press&&Math.hypot(e.clientX-this.press.x,e.clientY-this.press.y)>10)this.cancelPress();}
   private tap(e:Event){this.cancelPress();if(this.held){this.held=false;return;}if(this.config?.format==='mini')this.openFull(e);else this.expanded=!this.expanded;}
   private key(e:KeyboardEvent){if(e.key==='Enter'&&e.shiftKey){e.preventDefault();this.openFull(e);}}
+  private configure(){
+    const path="/niak-confort"+(this.view?.entry_id?"/"+encodeURIComponent(this.view.entry_id):"");
+    window.location.assign(path);
+  }
   private panel(full:boolean,modal=false){
     const v=this.view!,config=this.config!,c=this.controls(modal),[title,text]=summary(v),mini=!full&&config.format==='mini';
     return html`<ha-card class=${'nc-card '+(mini?'mini':'')} data-level=${v.assessment.level} data-action=${v.assessment.action}>
@@ -79,12 +83,13 @@ export class NiakComfortCard extends LitElement {
       </button>`}
       ${mini?nothing:html`${full||this.expanded?html`${full?nothing:html`<div class="hero-actions" style="padding:0 16px 12px"><button @click=${c.toggleWhy} aria-expanded=${c.why} aria-controls=${'why-'+c.uid}>${icon('info')}Pourquoi ?</button></div>`}${details(v,config,c,full)}`:nothing}${quality(v,c)}
         ${full?nothing:html`<div class="tile-footer"><span>Appui long : vue complète</span><button @click=${this.openFull}>Ouvrir la complète</button></div>`}`}
+      ${this.hass?.user?.is_admin?html`<div class="tile-footer"><button @click=${()=>this.configure()}>${icon("settings")}Configurer cette pièce</button></div>`:nothing}
     </ha-card>`;
   }
   protected render(){
     if(!this.config)return nothing;
     if(!this.view){const [title,text]=this.problem?(problems[this.problem]??problems.connection):['Chargement du confort','En attente des observations de la pièce.'];
-      return html`<ha-card class="nc-card problem" data-level="neutral" role="status"><h2>${title}</h2><p>${text}</p>${this.problem?html`<button @click=${()=>{this.live.stop();this.problem=undefined;this.connect();}}>Réessayer</button>`:nothing}</ha-card>`;}
+      return html`<ha-card class="nc-card problem" data-level="neutral" role="status"><h2>${title}</h2><p>${text}</p>${this.problem?html`<button @click=${()=>{this.live.stop();this.problem=undefined;this.connect();}}>Réessayer</button>${this.hass?.user?.is_admin?html`<button @click=${()=>this.configure()}>Ouvrir Niak Confort</button>`:nothing}`:nothing}</ha-card>`;}
     return html`${this.panel(this.config.format==='full')}
       <dialog aria-labelledby=${this.uid+'-dialog-title'} @cancel=${()=>{this.dialogOpen=false;}} @close=${()=>{this.dialogOpen=false;}}>
         <div class="dialog-top"><span id=${this.uid+'-dialog-title'}>Confort · ${this.view.title}</span><button class="icon-button" aria-label="Fermer la carte complète" @click=${()=>this.closeFull()}>${icon('close')}</button></div><div>${this.dialogOpen?this.panel(true,true):nothing}</div>

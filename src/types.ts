@@ -28,7 +28,7 @@ export interface Connection {
   subscribeMessage<T>(callback:(event:T)=>void, message:Record<string,unknown>):Promise<Unsubscribe>;
 }
 export interface HomeAssistant {
-  connection:Connection; themes?:{darkMode?:boolean};
+  connection:Connection; user?:{is_admin:boolean}; themes?:{darkMode?:boolean};
   callWS<T>(message:Record<string,unknown>):Promise<T>;
 }
 export interface Entry {entry_id:string; title:string; area_id:string|null}

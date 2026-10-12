@@ -56,6 +56,8 @@ export function coverageText(v:View):string {
 export function readingStatus(r:Reading|undefined):string {
   if(!r) return 'Non configuré';
   if(r.quality==='stale') return 'Mesure trop ancienne';
+  if(r.detail==='atmo_daily_forecast' && r.quality==='estimated') return 'Indice prévu du jour';
+  if(r.detail==='user_declared' && r.quality==='valid') return 'Déclaré par vous';
   if(r.quality==='estimated') return 'Estimation';
   if(r.quality==='valid') return 'Disponible';
   return r.detail==='incompatible_unit'?'Unité incompatible':r.detail==='out_of_range'?'Valeur hors plage':r.detail==='unknown_action'?'Action non fournie par le chauffage':'Temporairement indisponible';
