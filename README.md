@@ -1,5 +1,14 @@
 # Niak Comfort
 
+[![release](https://img.shields.io/github/v/release/Niakman13/niak-comfort?include_prereleases&cacheSeconds=3600)](https://github.com/Niakman13/niak-comfort/releases)
+[![Validate](https://github.com/Niakman13/niak-comfort/actions/workflows/validate.yml/badge.svg)](https://github.com/Niakman13/niak-comfort/actions/workflows/validate.yml)
+[![HACS](https://img.shields.io/badge/HACS-Custom-orange)](https://hacs.xyz)
+[![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+
+[![Sponsor](https://img.shields.io/badge/Sponsor-GitHub-ea4aaa?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/Niakman13)
+[![Buy me a coffee](https://img.shields.io/badge/Buy%20me%20a%20coffee-frankblemont-FFDD00?logo=buymeacoffee&logoColor=black)](https://www.buymeacoffee.com/frankblemont)
+[![PayPal](https://img.shields.io/badge/PayPal-Donate-00457C?logo=paypal&logoColor=white)](https://paypal.me/frankblemont)
+
 Carte de confort par pièce pour Home Assistant, inspirée de Niak Weather. Elle affiche les conseils calculés par [l’intégration Niak Comfort](https://github.com/Niakman13/niak-comfort-integration), avec leurs besoins, contraintes et sources.
 
 **Version 0.2.0 — alpha de test.** Aucun équipement n’est commandé. Installation complète et comportement avec vos propres capteurs restent à vérifier. Home Assistant 2026.10.0 minimum pour cette première alpha.
@@ -17,9 +26,11 @@ Prévisions, volets, PM2.5/COV et coordination chauffage ne sont pas raccordés.
 ## Installation
 
 1. Installer et configurer [l’intégration](https://github.com/Niakman13/niak-comfort-integration#installation) avec une pièce.
-2. Dans HACS, ajouter ce dépôt comme **dépôt personnalisé**, catégorie **Dashboard**, et télécharger la version alpha. Afficher les versions bêta si nécessaire. Ce projet n’est pas inclus au catalogue HACS par défaut.
+2. Dans HACS, ouvrir le bouton ci-dessous (ou ⋮ → **Dépôts personnalisés** : `https://github.com/Niakman13/niak-comfort`, catégorie **Tableau de bord**) et télécharger la version alpha. Afficher les versions bêta si nécessaire. Ce projet n’est pas inclus au catalogue HACS par défaut.
 3. Vérifier la ressource HACS `/hacsfiles/niak-comfort/niak-comfort-card.js` en **module JavaScript**, puis recharger le navigateur.
 4. Ajouter une carte Niak Comfort et choisir la pièce dans l’éditeur. Un choix automatique est possible avec une seule pièce configurée.
+
+[![Ouvrir Niak Comfort dans HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Niakman13&repository=niak-comfort&category=plugin)
 
 Installation manuelle : télécharger `niak-comfort-card.js` depuis [la release](https://github.com/Niakman13/niak-comfort/releases), le copier dans `config/www/`, puis ajouter `/local/niak-comfort-card.js?v=0.2.0` comme module JavaScript.
 
