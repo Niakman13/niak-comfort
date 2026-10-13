@@ -1,10 +1,9 @@
 import {LitElement,html,css,type PropertyValues} from 'lit';
-import {customElement,property,state} from 'lit/decorators.js';
+import {property,state} from 'lit/decorators.js';
 import {cleanConfig,MODULES,type Config,type Module,type HomeAssistant,type Entry} from './types';
 import {moduleLabels} from './views/panel';
 import {icon} from './ui/icons';
 
-@customElement('niak-comfort-card-editor')
 export class ComfortEditor extends LitElement {
   @property({attribute:false}) hass?:HomeAssistant;
   @state() private config?:Config;
@@ -53,3 +52,4 @@ export class ComfortEditor extends LitElement {
       <p>Les capteurs et préférences se règlent dans Niak Confort, accessible depuis la barre latérale de Home Assistant.</p>`;
   }
 }
+if(!customElements.get('niak-comfort-card-editor'))customElements.define('niak-comfort-card-editor',ComfortEditor);

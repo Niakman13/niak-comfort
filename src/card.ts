@@ -1,5 +1,5 @@
 import {html, LitElement, unsafeCSS, nothing, type PropertyValues} from 'lit';
-import {customElement,property,state} from 'lit/decorators.js';
+import {property,state} from 'lit/decorators.js';
 import style from './ui/charter.css';
 import {cleanConfig,type Config,type View,type HomeAssistant} from './types';
 import {number,numeric,summary,levelLabels} from './view';
@@ -20,7 +20,6 @@ const problems:Record<string,[string,string]>={
   reload:['La pièce se recharge','Les réglages ont changé. Le conseil reviendra après reconnexion.'],
   connection:['Connexion indisponible','Le conseil est retiré. La carte réessaie automatiquement ; vérifiez la connexion et les journaux de l’intégration.'],
 };
-@customElement('niak-comfort-card')
 export class NiakComfortCard extends LitElement {
   static styles=unsafeCSS(style);
   @property({attribute:false}) hass?:HomeAssistant;
@@ -72,7 +71,8 @@ export class NiakComfortCard extends LitElement {
   private key(e:KeyboardEvent){if(e.key==='Enter'&&e.shiftKey){e.preventDefault();this.openFull(e);}}
   private configure(){
     const path="/niak-confort"+(this.view?.entry_id?"/"+encodeURIComponent(this.view.entry_id):"");
-    window.location.assign(path);
+    // Navigate inside Home Assistant, without reloading the whole page.
+    history.pushState(null,'',path);window.dispatchEvent(new CustomEvent('location-changed',{detail:{replace:false}}));
   }
   private panel(full:boolean,modal=false){
     const v=this.view!,config=this.config!,c=this.controls(modal),[title,text]=summary(v),mini=!full&&config.format==='mini';
@@ -96,6 +96,8 @@ export class NiakComfortCard extends LitElement {
       </dialog>`;
   }
 }
+// The integration bundles this card; an older copy declared as a resource must not break the page.
+if(!customElements.get('niak-comfort-card'))customElements.define('niak-comfort-card',NiakComfortCard);
 declare global {interface Window {customCards?:Array<Record<string,unknown>>}}
 window.customCards??=[];
 if(!window.customCards.some(c=>c.type==='niak-comfort-card'))window.customCards.push({type:'niak-comfort-card',name:'Niak Comfort',description:'Le confort par pièce, avec des conseils expliqués et des sources visibles.'});

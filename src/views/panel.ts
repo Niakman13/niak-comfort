@@ -1,9 +1,9 @@
 import {html,nothing} from 'lit';
 import type {Config,View,Module} from '../types';
-import {numeric,number,summary,needs,levelLabels,heatingLabels,sourceLabels,coverageText,readingStatus} from '../view';
+import {numeric,number,summary,needs,levelLabels,heatingLabels,sourceLabels,constraintLabels,exposureLabels,kindLabels,coverageText,readingStatus} from '../view';
 import {icon} from '../ui/icons';
 export interface Controls {why:boolean;sources:boolean;toggleWhy:()=>void;toggleSources:()=>void;uid:string}
-export const moduleLabels:Record<Module,string>={windows:'Fenêtres',air:'Qualité de l’air',temperature:'Température',humidity:'Humidité',shutters:'Volets et lumière',coordination:'Lien chauffage'};
+export const moduleLabels:Record<Module,string>={windows:'Fenêtres',air:'Qualité de l’air',temperature:'Température',humidity:'Humidité',shutters:'Soleil et volets',coordination:'Lien chauffage'};
 function contactState(v:View) {
   const contacts=Object.entries(v.observations).filter(([k])=>k.startsWith('window:')).map(([,r])=>r);
   const opened=contacts.filter(r=>r.quality==='valid'&&r.value===true).length;
@@ -18,13 +18,30 @@ export function exchange(v:View) {
     <div class="outside"><div class="measure-name">Dehors</div><div class="measure-value">${number(numeric(o.outdoor_temperature))}<small>°C</small></div><div class="measure-detail">${number(numeric(o.outdoor_humidity))} % · ${number(a.outdoor_absolute_humidity)} g/m³</div></div>
   </div>`;
 }
+const flagText:Record<string,string>={rain_exposed:'pluie : à fermer',gust:'rafales : à fermer',sun_entering:'le soleil entre par là'};
+function openingList(v:View) {
+  const list=v.assessment.openings??[];
+  if(!list.length) return nothing;
+  return html`<ul class="openings">${list.map(o=>html`<li data-flag=${o.flags[0]??''}><strong>${v.names?.[o.entity_id]??o.entity_id}</strong>
+    <span>${o.open===null?'état inconnu':o.open?'ouvert':'fermé'} · ${kindLabels[o.kind]??'Ouvrant'}${o.exposure?` · exposé ${exposureLabels[o.exposure]??o.exposure}`:' · exposition non renseignée'}${o.sheltered?' · abrité':''}${o.sun_wm2!==null&&o.sun_wm2>=50?` · soleil ${o.sun_wm2} W/m²`:''}</span>
+    ${o.flags.length?html`<em>${o.flags.map(f=>flagText[f]??f).join(' · ')}</em>`:nothing}</li>`)}</ul>`;
+}
+function sunText(v:View) {
+  const s=v.assessment.sun,list=v.assessment.openings??[];
+  if(!s) return 'Position du soleil indisponible.';
+  if(s.elevation<=0) return 'Il fait nuit : aucun apport solaire.';
+  const sunny=list.filter(o=>o.sun_wm2!==null&&o.sun_wm2>=50);
+  if(!list.some(o=>o.exposure)) return 'Renseignez l’exposition des ouvrants dans Niak Confort pour savoir lesquels reçoivent le soleil.';
+  if(!list.some(o=>o.sun_wm2!==null)) return 'Ajoutez un capteur d’ensoleillement à l’extérieur du logement pour mesurer le soleil sur chaque façade.';
+  return sunny.length?'Au soleil : '+sunny.map(o=>`${v.names?.[o.entity_id]??o.entity_id} (${o.sun_wm2} W/m²)`).join(' · '):'Aucun ouvrant suivi ne reçoit de soleil direct maintenant.';
+}
 export function moduleRow(id:Module,v:View) {
   const o=v.observations,a=v.assessment,w=contactState(v);
   const info={windows:'window',air:'air',temperature:'temp',humidity:'drop',shutters:'sun',coordination:'heat'};
   let label='',body;
   if(id==='windows'){
     label=w.total?`${w.opened} ouverte${w.opened>1?'s':''} / ${w.total}`:'Non mesuré';
-    body=html`<p>${w.label}. ${w.total?'Le constat repose sur les contacts de cette pièce.':'Sans contact, aucune fermeture ni geste effectué n’est présumé.'}</p>`;
+    body=html`<p>${w.label}. ${w.total?'Le constat repose sur les contacts de cette pièce.':'Sans contact, aucune fermeture ni geste effectué n’est présumé.'}</p>${openingList(v)}`;
   }else if(id==='air'){
     label=numeric(o.co2)===null?`CO₂ · ${readingStatus(o.co2).toLowerCase()}`:'CO₂ mesuré';
     body=html`<div class="air-values"><span><strong>${number(numeric(o.co2))}</strong>ppm de CO₂</span><span><strong>${number(numeric(o.indoor_humidity))}</strong>% d’humidité</span></div><p>${a.needs.includes('air')?'Le besoin de renouvellement d’air reste présent, même si une contrainte empêche l’ouverture.':'Aucun besoin de renouvellement par CO₂ n’est établi avec les mesures disponibles.'}</p><p>Particules et COV : pas de diagnostic dans cette version.</p>`;
@@ -35,7 +52,9 @@ export function moduleRow(id:Module,v:View) {
     label=`${number(numeric(o.indoor_humidity))} % dedans`;
     body=html`<p>${a.indoor_absolute_humidity===null||a.outdoor_absolute_humidity===null?'La comparaison de l’eau contenue dans l’air nécessite les températures et humidités dedans/dehors.':`${number(a.indoor_absolute_humidity)} g/m³ dedans · ${number(a.outdoor_absolute_humidity)} g/m³ dehors.`}</p><p>${a.opportunities.includes('dry')?'L’air extérieur contient suffisamment moins d’eau pour offrir un potentiel d’assèchement.':'Un bénéfice d’assèchement par l’extérieur n’est pas confirmé.'}</p>`;
   }else if(id==='shutters'){
-    label='Non disponible';body=html`<p>Les façades, volets et apports solaires ne sont pas encore raccordés. Aucun conseil précis de protection solaire.</p>`;
+    const sunny=(v.assessment.openings??[]).filter(o=>o.sun_wm2!==null&&o.sun_wm2>=50).length;
+    label=v.assessment.sun&&v.assessment.sun.elevation>0?(sunny?`${sunny} ouvrant${sunny>1?'s':''} au soleil`:'Soleil suivi'):'Nuit';
+    body=html`<p>${sunText(v)}</p><p>Volets et luminosité : à venir dans une prochaine version.</p>`;
   }else{
     label=o.heating?heatingLabels[a.heating_action]??'Action inconnue':'Non relié';
     body=html`<p>${o.heating?`Action observée : ${heatingLabels[a.heating_action]??'inconnue'}.`:'Aucun équipement de chauffage sélectionné.'}</p><p>Aucune pause demandée ni confirmée. Le futur pilote recevra les besoins de cette pièce ; il conservera ses protections et la responsabilité des commandes.</p>`;
@@ -45,7 +64,7 @@ export function moduleRow(id:Module,v:View) {
 export function why(v:View,c:Controls) {
   return html`<section class="explanation" id=${'why-'+c.uid} ?hidden=${!c.why}><h3>Pourquoi ce conseil ?</h3>
     <div class="reason-row"><strong>Les besoins</strong><p>${v.assessment.needs.length?v.assessment.needs.map(n=>needs[n]??n).join(' · '):'Aucun besoin prioritaire parmi les mesures connues. Les polluants non mesurés restent inconnus.'}</p></div>
-    <div class="reason-row"><strong>Les contraintes</strong><p>${v.assessment.constraints.map(n=>n==='rain'?'Pluie sur les ouvrants':n==='pollution'?'Air extérieur défavorable':n).join(' · ')||'Aucune contrainte confirmée ; cela ne certifie pas les sources absentes.'}</p></div>
+    <div class="reason-row"><strong>Les contraintes</strong><p>${v.assessment.constraints.map(n=>constraintLabels[n]??n).join(' · ')||'Aucune contrainte confirmée ; cela ne certifie pas les sources absentes.'}</p></div>
     <div class="reason-row"><strong>Le bilan</strong><p>${coverageText(v)}. Les besoins confirmés restent visibles ; les informations non mesurées restent inconnues.</p></div>
   </section>`;
 }

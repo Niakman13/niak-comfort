@@ -1,3 +1,10 @@
+## 0.4.0-beta.1 — Ouvrants, soleil et vent
+
+- La carte est désormais incluse dans l’intégration Niak Comfort.
+- Chaque fenêtre ou porte affiche son exposition, son abri et le soleil qu’elle reçoit.
+- Nouveaux conseils : rafales fortes, gel, chauffage en marche, soleil qui entre.
+- « Configurer cette pièce » ouvre la page sans recharger Home Assistant.
+
 ## 0.3.0-beta.3 — Accès à Mon logement
 
 - Bouton « Configurer cette pièce » pour ouvrir directement son assistant dans la page Niak Confort.
