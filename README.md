@@ -11,7 +11,7 @@
 
 Carte de confort par pièce pour Home Assistant, inspirée de Niak Weather. Elle affiche les conseils calculés par [l’intégration Niak Comfort](https://github.com/Niakman13/niak-comfort-integration), avec leurs besoins, contraintes et sources.
 
-**Version 0.4.0-beta.1 — bêta de test.** Aucun équipement n’est commandé. Home Assistant 2026.10.0 minimum.
+**Version 0.4.0-beta.2 — bêta de test.** Aucun équipement n’est commandé. Home Assistant 2026.10.0 minimum.
 
 > **Depuis la version 0.4, la carte est incluse dans [l’intégration Niak Comfort](https://github.com/Niakman13/niak-comfort-integration).** Installez seulement l’intégration : la carte est disponible sans rien déclarer. Ce dépôt reste la source de développement de la carte ; si vous l’aviez installé dans HACS, vous pouvez le supprimer.
 
@@ -34,7 +34,7 @@ Les ouvrants affichent leur exposition, leur abri et le soleil qu’ils reçoive
 
 [![Ouvrir Niak Comfort dans HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Niakman13&repository=niak-comfort&category=plugin)
 
-Installation manuelle : télécharger `niak-comfort-card.js` depuis [la release](https://github.com/Niakman13/niak-comfort/releases), le copier dans `config/www/`, puis ajouter `/local/niak-comfort-card.js?v=0.4.0-beta.1` comme module JavaScript. Inutile avec l’intégration 0.4 ou plus récente, qui inclut déjà la carte.
+Installation manuelle : télécharger `niak-comfort-card.js` depuis [la release](https://github.com/Niakman13/niak-comfort/releases), le copier dans `config/www/`, puis ajouter `/local/niak-comfort-card.js?v=0.4.0-beta.2` comme module JavaScript. Inutile avec l’intégration 0.4 ou plus récente, qui inclut déjà la carte.
 
 ```yaml
 type: custom:niak-comfort-card

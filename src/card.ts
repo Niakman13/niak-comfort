@@ -100,4 +100,4 @@ export class NiakComfortCard extends LitElement {
 if(!customElements.get('niak-comfort-card'))customElements.define('niak-comfort-card',NiakComfortCard);
 declare global {interface Window {customCards?:Array<Record<string,unknown>>}}
 window.customCards??=[];
-if(!window.customCards.some(c=>c.type==='niak-comfort-card'))window.customCards.push({type:'niak-comfort-card',name:'Niak Comfort',description:'Le confort par pièce, avec des conseils expliqués et des sources visibles.'});
+if(!window.customCards.some(c=>c.type==='niak-comfort-card'))window.customCards.push({type:'niak-comfort-card',name:'Niak Confort',description:'Niak Comfort : le confort par pièce, avec des conseils expliqués et des sources visibles.'});

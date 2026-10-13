@@ -1,3 +1,7 @@
+## 0.4.0-beta.2 — Nom de la carte
+
+- La carte s’appelle « Niak Confort » dans la liste des cartes.
+
 ## 0.4.0-beta.1 — Ouvrants, soleil et vent
 
 - La carte est désormais incluse dans l’intégration Niak Comfort.
